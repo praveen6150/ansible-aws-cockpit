@@ -1,0 +1,28 @@
+---
+- name: Deploy cockpit
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Ensure cockpit is installed
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - cockpit
+        - firewalld
+    - name: Ensure the cockpit service is started and enabled
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop:
+        - firewalld
+        - cockpit
+    - name: Ensure Cockpit network traffic is allowed
+      ansible.posix.firewalld:
+        service: cockpit
+        permanent: true
+        state: enabled
+        immediate: true
+...
+
